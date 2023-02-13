@@ -351,7 +351,7 @@ if exist %programfiles(x86)%\Google\Chrome\Application\chrome.exe(
 ```
 
 
-# Scripts voltados para o AD
+# Scripts voltados para o AD Active directory
 
 ## atualizar opção de usuario em lote 
 
@@ -393,4 +393,29 @@ $computador | % {Move-ADObject $ini$_$fim -TargetPath "OU Destino" }
 
 ```sh
 Get-AdUser -SearchBase "OU" -Filter * -Properties *| Select-Object displayname, mail, SamAccountname, pager, company, telephoneNumber, uidNumber, uid, title, department, description, physicalDeliveryOfficeName  | Export-Csv C:\Estagiarios.csv -NoTypeInformation -Encoding Unicode
+```
+
+## Relatorio de usarios por grupo 
+
+```sh
+dsquery group -name <NOME DO GRUPO>| dsget group -members -expand
+```
+
+## Mover objetos(usuario, computadores....) desabilitados
+
+```sh
+Search-ADAccount -SearchBase "OU=" -AccountDisabled | Where {$_.DistinguishedName -notlike "*OU=DESABILITADO*"} | Move-ADObject -TargetPath "OU=DESABILITADO"
+```
+
+## Lista objetos(usuario, computadores....) desabilitado
+
+```sh
+Search-ADAccount -SearchBase "OU=" -AccountDisabled | Where {$_.DistinguishedName -notlike "*OU=DESABILITADO*"} | Select-Object Name, DistinguishedName > c:\txt.txt
+```
+
+## Desabilitar objetos(usuario, computadores....) por tempo de inatividade
+
+```sh
+$timespan = New-Timespan -Days 90
+Search-ADAccount -SearchBase "OU=ESTAGIARIOS/TERCERIZADOS,OU=PGE,DC=PGEBA,DC=INTRANET" –UsersOnly –AccountInactive –TimeSpan $timespan | Disable-ADAccount
 ```
